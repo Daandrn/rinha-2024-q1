@@ -1,9 +1,6 @@
 # Use a imagem base do PHP 8.3
 FROM php:8.3-fpm-alpine
 
-# Define o diretório de trabalho como /app
-WORKDIR /var/www/app
-
 # Executa um comando no shell durante o processo de construção da imagem
 RUN /bin/sh -c set -eux;
 
@@ -23,4 +20,4 @@ ENV PHP_VERSION=8.3
 EXPOSE 8000/tcp
 
 # Define o comando padrão a ser executado quando o contêiner for iniciado
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "/app"]
+CMD ["php", "-S", "0.0.0.0:8000"]
