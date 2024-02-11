@@ -2,27 +2,36 @@
 
 declare(strict_types=1);
 
+use PgSql\Connection;
+
 $url = explode("/", $_SERVER["REQUEST_URI"]);
 
-if ($url[1] === "clientes" && is_numeric($url[2]) && $url[2] != 0) {
-    $id = (int) $url[2];
+if ($url[1] === "clientes" 
+    && is_numeric($url[2]) 
+    && in_array($url[2], [1, 2, 3, 4, 5])
+    ) {
+        $id = (int) $url[2];
 } else {
     http_response_code(404);
     exit;
 }
 
 define("TIME_STAMP", "Y-m-d\TH:i:s.u\Z");
-$conn = pg_connect("host=db port=5432 dbname=rinha user=rinha password=456");
+
+function conn(): Connection|false
+{
+    return $conn = pg_connect("host=db port=5432 dbname=rinha user=rinha password=456");
+}
 
 if ($_SERVER['REQUEST_METHOD'] === "POST" && $url[3] === "transacoes") {
     $requestJson = file_get_contents('php://input');
     $request = json_decode($requestJson, true);
     
-    if ((!is_numeric($request["valor"])) ||
-        ($request["tipo"] !== "d" && $request["tipo"] !== "c") ||
-        (!is_string($request["descricao"]) || (strlen($request["descricao"]) < 1 || strlen($request["descricao"]) > 10))
+    if ((!is_int($request["valor"])) 
+        || ($request["tipo"] !== "d" && $request["tipo"] !== "c") 
+        || (!is_string($request["descricao"]) || (strlen($request["descricao"]) < 1 || strlen($request["descricao"]) > 10))
     ) {
-        http_response_code(400);
+        http_response_code(422);
         echo json_encode(["message" => "body da requisicao invalido"]);
         exit;
     }
@@ -31,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && $url[3] === "transacoes") {
     $tipo = $request["tipo"];
     $descricao = $request["descricao"];
     
-    $sql = pg_query($conn, "SELECT * FROM clientes WHERE id = $id");
+    $sql = pg_query(conn(), "SELECT * FROM clientes WHERE id = $id");
     
     if (pg_num_rows($sql) === 0) {
         http_response_code(404);
@@ -59,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && $url[3] === "transacoes") {
         }
     }
     
-    pg_query($conn, "INSERT INTO transacao (cliente_id, valor, tipo, descricao, quando) 
+    pg_query(conn(), "INSERT INTO transacao (cliente_id, valor, tipo, descricao, quando) 
                         VALUES ($id, $valor, '{$tipo}', '{$descricao}', '{$quando}');
                      UPDATE clientes SET valor = $novoSaldo WHERE id = $id;");
 
@@ -74,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && $url[3] === "transacoes") {
 
 if ($_SERVER['REQUEST_METHOD'] === "GET" && $url[3] === "extrato") {
 
-    $sql = pg_query($conn, "SELECT * FROM clientes WHERE id = $id");
+    $sql = pg_query(conn(), "SELECT * FROM clientes WHERE id = $id");
     
     if (pg_num_rows($sql) === 0) {
         http_response_code(404);
@@ -82,8 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] === "GET" && $url[3] === "extrato") {
         exit;
     }
 
-    $sql = pg_query($conn, "SELECT valor, limite FROM clientes WHERE id = $id;");
-    $sql2 = pg_query($conn, "SELECT valor, tipo, descricao, quando AS realizada_em FROM transacao WHERE cliente_id = $id ORDER BY quando DESC LIMIT 10;");
+    $sql = pg_query(conn(), "SELECT valor, limite FROM clientes WHERE id = $id;");
+    $sql2 = pg_query(conn(), "SELECT valor, tipo, descricao, quando AS realizada_em FROM transacao WHERE cliente_id = $id ORDER BY quando DESC LIMIT 10;");
     $date = new DateTime('now');
     $result = pg_fetch_assoc($sql);
     $result2 = pg_fetch_all($sql2);

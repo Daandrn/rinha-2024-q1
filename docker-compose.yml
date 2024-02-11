@@ -9,15 +9,15 @@ services:
     - ./php.ini:/usr/local/etc/php/conf.d/php.ini
     environment:
       - DB_HOSTNAME=db
-    expose:
-      - 8080
+    ports:
+      - "8080:8080"
     depends_on:
       - db
     deploy:
       resources:
         limits:
-          cpus: "0.45"
-          memory: "200MB"
+          cpus: "0.40"
+          memory: "100MB"
 
   api02:
     <<: *api
@@ -43,7 +43,7 @@ services:
       resources:
         limits:
           cpus: "0.15"
-          memory: "10MB"
+          memory: "50MB"
 
   db:
     image: postgres:16.1-alpine
@@ -60,7 +60,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.45"
+          cpus: "0.55"
           memory: "140MB"
 
 networks:
