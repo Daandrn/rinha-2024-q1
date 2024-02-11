@@ -1,4 +1,4 @@
-# Submissão para Rinha de Backend, Segunda Edição: 2024/Q1 - Controle de Concorrência
+# Submissão para [Rinha de Backend](https://github.com/zanfranceschi/rinha-de-backend-2024-q1.git), Segunda Edição: 2024/Q1 - Controle de Concorrência
 
 
 <img src="https://upload.wikimedia.org/wikipedia/commons/2/27/PHP-logo.svg" alt="logo PHP" width="200" height="auto">
@@ -8,7 +8,7 @@
 
 
 ## daandrn
-Submissão para o [Rinha de backend](https://github.com/zanfranceschi/rinha-de-backend-2024-q1.git) feita com:
+Submissão feita com:
 - `php 8.3` para api
 - `nginx` como load balancer
 - `postgres` como banco de dados
