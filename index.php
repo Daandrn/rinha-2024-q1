@@ -2,30 +2,40 @@
 
 declare(strict_types=1);
 
+$url = explode("/", $_SERVER["REQUEST_URI"]);
+
+if ($url[1] === "clientes" && is_numeric($url[2]) && $url[2] != 0) {
+    $id = (int) $url[2];
+} else {
+    http_response_code(404);
+    exit;
+}
+
 define("TIME_STAMP", "Y-m-d\TH:i:s.u\Z");
 $conn = pg_connect("host=db port=5432 dbname=rinha user=rinha password=456");
 
-if ($_SERVER['REQUEST_METHOD'] === "POST") {
-    $url = explode("/", $_SERVER["REQUEST_URI"]);
+if ($_SERVER['REQUEST_METHOD'] === "POST" && $url[3] === "transacoes") {
+    $requestJson = file_get_contents('php://input');
+    $request = json_decode($requestJson, true);
     
-    $id = (int) $url[2];
-
+    if ((!is_numeric($request["valor"])) ||
+        ($request["tipo"] !== "d" && $request["tipo"] !== "c") ||
+        (!is_string($request["descricao"]) || (strlen($request["descricao"]) < 1 || strlen($request["descricao"]) > 10))
+    ) {
+        http_response_code(400);
+        echo json_encode(["message" => "body da requisicao invalido"]);
+        exit;
+    }
+    
+    $valor = $request["valor"];
+    $tipo = $request["tipo"];
+    $descricao = $request["descricao"];
+    
     $sql = pg_query($conn, "SELECT * FROM clientes WHERE id = $id");
     
     if (pg_num_rows($sql) === 0) {
         http_response_code(404);
-        
         echo json_encode(["message" => "id nao encontrado."]);
-        exit;
-    }
-    
-    $valor = (int) $_POST["valor"];
-    $tipo = $_POST["tipo"];
-    $descricao = $_POST["descricao"];
-
-    if (((strlen($_POST["descricao"]) < 1 || strlen($_POST["descricao"]) > 10) || ($tipo !== "d" && $tipo !== "c"))) {
-        http_response_code(400);
-        echo json_encode(["message" => "descricao ou tipo de transacao invalidos"]);
         exit;
     }
     
@@ -49,11 +59,11 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
         }
     }
     
-    http_response_code(200);
-
     pg_query($conn, "INSERT INTO transacao (cliente_id, valor, tipo, descricao, quando) 
                         VALUES ($id, $valor, '{$tipo}', '{$descricao}', '{$quando}');
                      UPDATE clientes SET valor = $novoSaldo WHERE id = $id;");
+
+    http_response_code(200);
 
     echo json_encode([
         "limite" => $limite,
@@ -62,16 +72,12 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === "GET" && isset($url[2])) {
-    $url = explode("/", $_SERVER["REQUEST_URI"]);
-
-    $id = (int) $url[2];
+if ($_SERVER['REQUEST_METHOD'] === "GET" && $url[3] === "extrato") {
 
     $sql = pg_query($conn, "SELECT * FROM clientes WHERE id = $id");
     
     if (pg_num_rows($sql) === 0) {
         http_response_code(404);
-        
         echo json_encode(["message" => "id nao encontrado."]);
         exit;
     }

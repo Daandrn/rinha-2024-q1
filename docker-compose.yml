@@ -6,11 +6,11 @@ services:
     hostname: api01
     volumes:
     - ./index.php:/var/www/public/index.php
+    - ./php.ini:/usr/local/etc/php/conf.d/php.ini
     environment:
       - DB_HOSTNAME=db
-      - PORT=8080
-    ports:
-      - "8080:8080"
+    expose:
+      - 8080
     depends_on:
       - db
     deploy:
@@ -24,9 +24,9 @@ services:
     hostname: api02
     volumes:
     - ./index.php:/var/www/public/index.php
+    - ./php.ini:/usr/local/etc/php/conf.d/php.ini
     environment:
       - DB_HOSTNAME=db
-      - PORT=8080
     ports:
       - "8081:8080"
   
