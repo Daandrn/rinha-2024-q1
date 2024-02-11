@@ -17,7 +17,7 @@ ENV LANG=C.UTF-8
 ENV PHP_VERSION=8.3
 
 # Expõe a porta 8000/tcp do contêiner
-EXPOSE 8000/tcp
+EXPOSE 8080/tcp
 
 # Define o comando padrão a ser executado quando o contêiner for iniciado
-CMD ["php", "-S", "0.0.0.0:8000"]
+CMD ["php", "-S", "0.0.0.0:8080"]

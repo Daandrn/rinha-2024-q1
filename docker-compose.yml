@@ -2,8 +2,7 @@ version: "3.5"
 
 services:
   api01: &api
-    image: leoralph/rinha-backend-q1-2024:latest
-    working_dir: /var/www
+    image: daandrn/php:latest
     hostname: api01
     environment:
       - DB_HOSTNAME=db

@@ -6,7 +6,7 @@ define("TIME_STAMP", "Y-m-d\TH:i:s.u\Z");
 if ($_SERVER['REQUEST_METHOD'] === "POST") {
     $url = explode("/", $_SERVER["REQUEST_URI"]);
     
-    $conn = pg_connect("host=localhost port=5432 dbname=transacoes user=postgres password=Danillo@126");
+    $conn = pg_connect("host=localhost port=5432 dbname=rinha user=rinha password=456");
     $id = (int) $url[2];
 
     $sql = pg_query($conn, "SELECT * FROM clientes WHERE id = $id");
