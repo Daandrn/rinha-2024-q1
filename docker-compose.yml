@@ -4,6 +4,8 @@ services:
   api01: &api
     image: daandrn/php:latest
     hostname: api01
+    volumes:
+    - ./index.php:/var/www/public/index.php
     environment:
       - DB_HOSTNAME=db
       - PORT=8080
@@ -20,6 +22,8 @@ services:
   api02:
     <<: *api
     hostname: api02
+    volumes:
+    - ./index.php:/var/www/public/index.php
     environment:
       - DB_HOSTNAME=db
       - PORT=8080

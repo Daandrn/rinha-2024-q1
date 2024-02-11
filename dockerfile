@@ -8,6 +8,8 @@ RUN apk --no-cache add postgresql-dev\
     && docker-php-ext-install pgsql \
     && rm -rf /var/cache/apk/*
 
+WORKDIR /var/www/public/
+
 COPY php.ini /usr/local/etc/php/conf.d/php.ini
 
 # Define variáveis de ambiente
@@ -16,7 +18,7 @@ ENV PATH=$PHP_HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/
 ENV LANG=C.UTF-8
 ENV PHP_VERSION=8.3
 
-# Expõe a porta 8000/tcp do contêiner
+# Expõe a porta 8080/tcp do contêiner
 EXPOSE 8080/tcp
 
 # Define o comando padrão a ser executado quando o contêiner for iniciado
