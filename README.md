@@ -8,7 +8,7 @@
 
 
 ## daandrn
-Submissão feita com:
+Submissão para o [Rinha de backend](https://github.com/zanfranceschi/rinha-de-backend-2024-q1.git) feita com:
 - `php 8.3` para api
 - `nginx` como load balancer
 - `postgres` como banco de dados
