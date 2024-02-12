@@ -1,6 +1,12 @@
 # Use a imagem base do PHP 8.3
 FROM php:8.3-fpm-alpine
 
+RUN apk --no-cache add nginx
+
+RUN rm /etc/nginx/nginx.conf
+
+COPY ngphp.conf /etc/nginx/nginx.conf
+
 COPY php.ini /usr/local/etc/php/conf.d/php.ini
 
 WORKDIR /var/www/public/
@@ -23,4 +29,4 @@ ENV LANG=C.UTF-8
 ENV PHP_VERSION=8.3
 
 # Define o comando padrão a ser executado quando o contêiner for iniciado
-CMD ["php", "-S", "0.0.0.0:8080"]
+CMD ["sh", "-c", "php-fpm && nginx -g 'daemon off;'"]

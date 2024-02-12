@@ -21,3 +21,10 @@ INSERT INTO clientes (limite, valor) VALUES
 	(1000000, 0),
 	(10000000, 0),
 	(500000, 0);
+
+CREATE OR REPLACE FUNCTION saldoLimite(id_clientes INTEGER) 
+RETURNS SETOF clientes AS $$
+BEGIN 
+	RETURN QUERY SELECT * FROM clientes WHERE id = id_clientes LIMIT 1;
+END;
+$$ LANGUAGE plpgsql;

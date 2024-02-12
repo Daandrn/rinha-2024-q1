@@ -5,6 +5,7 @@ services:
     image: daandrn/php:latest
     hostname: api01
     volumes:
+    - ./ngphp.conf:/etc/nginx/nginx.conf:ro
     - ./index.php:/var/www/public/index.php
     - ./php.ini:/usr/local/etc/php/conf.d/php.ini
     environment:
@@ -16,13 +17,14 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.40"
-          memory: "100MB"
+          cpus: "0.35"
+          memory: "175MB"
 
   api02:
     <<: *api
     hostname: api02
     volumes:
+    - ./ngphp.conf:/etc/nginx/nginx.conf:ro
     - ./index.php:/var/www/public/index.php
     - ./php.ini:/usr/local/etc/php/conf.d/php.ini
     environment:
@@ -60,10 +62,9 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.55"
-          memory: "140MB"
+          cpus: "0.65"
+          memory: "150MB"
 
 networks:
-  default:
+  rinha:
     driver: bridge
-    name: rinha-nginx-2024q1

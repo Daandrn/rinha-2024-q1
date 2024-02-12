@@ -2,7 +2,14 @@
 
 declare(strict_types=1);
 
+function aaaaaaaa(mixed $a = "Estamos aqui com die aaaaaaaa")
+{
+    var_dump($a);die;
+}
+
 use PgSql\Connection;
+
+define("TIME_STAMP", "Y-m-d\TH:i:s.u\Z");
 
 $url = explode("/", $_SERVER["REQUEST_URI"]);
 
@@ -15,8 +22,6 @@ if ($url[1] === "clientes"
     http_response_code(404);
     exit;
 }
-
-define("TIME_STAMP", "Y-m-d\TH:i:s.u\Z");
 
 function conn(): Connection|false
 {
@@ -39,58 +44,57 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && $url[3] === "transacoes") {
     $valor = $request["valor"];
     $tipo = $request["tipo"];
     $descricao = $request["descricao"];
-    
-    $sql = pg_query(conn(), "SELECT * FROM clientes WHERE id = $id");
-    
-    if (pg_num_rows($sql) === 0) {
-        http_response_code(404);
-        echo json_encode(["message" => "id nao encontrado."]);
-        exit;
-    }
-    
-    $result = pg_fetch_assoc($sql);
-    
-    $limite = (int) $result["limite"];
-    $saldo = (int) $result["valor"];
+
     $quando = new DateTime('now');
     $quando = $quando->format(TIME_STAMP);
 
     if ($tipo === "c") {
-        $novoSaldo = (int) $saldo + $valor;
+        pg_query(conn(), "INSERT INTO transacao (cliente_id, valor, tipo, descricao, quando) 
+                            VALUES ($id, $valor, '{$tipo}', '{$descricao}', '{$quando}');
+                          UPDATE clientes SET valor = valor + $valor WHERE id = $id;");
     }
 
     if ($tipo === "d") {
-        $novoSaldo = (int) $saldo - $valor;
-        if ($novoSaldo < ($limite * -1)) {
+        $query = 
+        "DO $$
+        BEGIN
+            IF (((SELECT valor FROM clientes WHERE id = $id) - $valor) >= ((SELECT limite FROM clientes WHERE id = $id) * -1)) THEN
+                INSERT INTO transacao (cliente_id, valor, tipo, descricao, quando) 
+                VALUES ($id, $valor, '{$tipo}', '{$descricao}', '{$quando}');
+                
+                UPDATE clientes 
+                SET valor = valor - $valor
+                WHERE id = $id; 
+            ELSE
+                RAISE EXCEPTION 'rinha456limite-excedido';
+            END IF;
+        END $$;
+        SELECT saldoLimite($id)";
+
+        $sql = pg_query(conn(), $query);
+        $error = pg_last_error(conn());
+        
+        if (preg_match("/rinha456limite-excedido/", $error)) {
             http_response_code(422);
             echo json_encode(["message" => "saldo ficara inconsistente, abortado!"]);
             exit;
         }
+
+        $result = pg_fetch_assoc($sql);
     }
-    
-    pg_query(conn(), "INSERT INTO transacao (cliente_id, valor, tipo, descricao, quando) 
-                        VALUES ($id, $valor, '{$tipo}', '{$descricao}', '{$quando}');
-                     UPDATE clientes SET valor = $novoSaldo WHERE id = $id;");
 
     http_response_code(200);
-
+    $array = explode(",", preg_replace(['/\(/', '/\)/'], "", $result["saldolimite"]));
+    $limite = (int) $array[1];
+    $saldo = (int) $array[2];
     echo json_encode([
         "limite" => $limite,
-        "saldo" => $novoSaldo
+        "saldo" => $saldo
     ]);
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === "GET" && $url[3] === "extrato") {
-
-    $sql = pg_query(conn(), "SELECT * FROM clientes WHERE id = $id");
-    
-    if (pg_num_rows($sql) === 0) {
-        http_response_code(404);
-        echo json_encode(["message" => "id nao encontrado."]);
-        exit;
-    }
-
     $sql = pg_query(conn(), "SELECT valor, limite FROM clientes WHERE id = $id;");
     $sql2 = pg_query(conn(), "SELECT valor, tipo, descricao, quando AS realizada_em FROM transacao WHERE cliente_id = $id ORDER BY quando DESC LIMIT 10;");
     $date = new DateTime('now');
@@ -102,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === "GET" && $url[3] === "extrato") {
     echo json_encode([
         "saldo" => [
             "total" => (int) $result["valor"], 
-            "data_extrato" => $date->format(TIME_STAMP), 
+            "data_extrato" => $date->format(TIME_STAMP),
             "limite" => (int) $result["limite"]
         ],
         "ultimas_transacoes" => [
