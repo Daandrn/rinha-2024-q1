@@ -5,7 +5,7 @@ declare(strict_types=1);
 function aaaaaaaa(mixed $a = "Estamos aqui com die aaaaaaaa")
 {
     var_dump($a);die;
-}
+}aaaaaaaa();
 
 use PgSql\Connection;
 

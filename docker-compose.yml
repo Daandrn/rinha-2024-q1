@@ -2,7 +2,7 @@ version: "3.5"
 
 services:
   api01: &api
-    image: daandrn/php:latest
+    image: daandrn/php:rinha
     hostname: api01
     volumes:
     - ./ngphp.conf:/etc/nginx/nginx.conf:ro
@@ -66,5 +66,6 @@ services:
           memory: "150MB"
 
 networks:
-  rinha:
+  default:
     driver: bridge
+    name: rinha
