@@ -6,29 +6,33 @@ services:
     container_name: api01
     hostname: api01
     volumes:
-    - ./ngphp.conf:/etc/nginx/nginx.conf:ro
-    - ./index.php:/var/www/public/index.php
+    - ./ngphp.conf:/etc/nginx/conf.d/ngphp.conf
+    - ./index.php:/usr/share/nginx/html/index.php
     - ./php.ini:/usr/local/etc/php/conf.d/php.ini
     environment:
       - DB_HOSTNAME=db
+    ports:
+      - "8080:8080"
     depends_on:
       - db
     deploy:
       resources:
         limits:
-          cpus: "0.35"
-          memory: "175MB"
+          cpus: "0.25"
+          memory: "185MB"
 
   api02:
     <<: *api
     hostname: api02
     container_name: api02
     volumes:
-    - ./ngphp.conf:/etc/nginx/nginx.conf:ro
-    - ./index.php:/var/www/public/index.php
+    - ./ngphp.conf:/etc/nginx/conf.d/ngphp.conf
+    - ./index.php:/usr/share/nginx/html/index.php
     - ./php.ini:/usr/local/etc/php/conf.d/php.ini
     environment:
       - DB_HOSTNAME=db
+    ports:
+      - "8081:8080"
   
   nginx:
     image: nginx:1.25.3-alpine
@@ -43,8 +47,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.15"
-          memory: "50MB"
+          cpus: "0.10"
+          memory: "30MB"
 
   db:
     image: postgres:16.1-alpine
@@ -62,7 +66,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.65"
+          cpus: "0.90"
           memory: "150MB"
 
 networks:

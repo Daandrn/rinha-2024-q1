@@ -6,15 +6,13 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN rm /etc/nginx/nginx.conf
+RUN rm -r /etc/nginx/sites-available
+RUN rm -r /etc/nginx/sites-enabled
+
 
 RUN docker-php-ext-install pgsql
 
-COPY ngphp.conf /etc/nginx/nginx.conf
-
-COPY php.ini /usr/local/etc/php/conf.d/php.ini
-
-WORKDIR /var/www/public/
+WORKDIR /usr/share/nginx/html/
 
 RUN mv /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
 RUN rm /usr/local/etc/php/php.ini-development
@@ -25,5 +23,5 @@ ENV PATH=$PHP_HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/
 ENV LANG=C.UTF-8
 ENV PHP_VERSION=8.3
 
-# Define o comando padrão a ser executado quando o contêiner for iniciado
-CMD ["sh", "-c", "php-fpm && nginx -g 'daemon off;'"]
+# Comando padrão a ser executado quando o contêiner for iniciado
+CMD ["sh", "-c", "php-fpm && nginx -g 'daemon off;' -p /usr/share/nginx/html/"]
