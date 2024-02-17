@@ -24,4 +24,4 @@ ENV LANG=C.UTF-8
 ENV PHP_VERSION=8.3
 
 # Comando padrão a ser executado quando o contêiner for iniciado
-CMD ["sh", "-c", "php-fpm && nginx -g 'daemon off;' -p /usr/share/nginx/html/"]
+CMD ["sh", "-c", "php-fpm && nginx -p /usr/share/nginx/html/"]
