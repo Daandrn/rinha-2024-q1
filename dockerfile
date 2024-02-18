@@ -2,17 +2,13 @@
 FROM php:8.3-fpm
 
 RUN apt-get update && \
-    apt-get install -y libpq-dev nginx && \
+    apt-get install -y libpq-dev && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN rm -r /etc/nginx/sites-available
-RUN rm -r /etc/nginx/sites-enabled
-
-
 RUN docker-php-ext-install pgsql
 
-WORKDIR /usr/share/nginx/html/
+WORKDIR /var/www/
 
 RUN mv /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
 RUN rm /usr/local/etc/php/php.ini-development
@@ -24,4 +20,4 @@ ENV LANG=C.UTF-8
 ENV PHP_VERSION=8.3
 
 # Comando padrão a ser executado quando o contêiner for iniciado
-CMD ["sh", "-c", "php-fpm && nginx -p /usr/share/nginx/html/"]
+CMD ["php", "-S", "0.0.0.0:8080"]

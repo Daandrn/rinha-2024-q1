@@ -8,8 +8,8 @@
 
 
 ## daandrn
-Submissão feita com:
-- `php 8.3` para api
+Submissão feita com ódio e:
+- `php 8.3` para api - usando o servidor embutido do php (php -S localhost:8080)
 - `nginx` como load balancer
 - `postgres` como banco de dados
 - [repositório da api](https://github.com/Daandrn/rinha-2024-q1)
